@@ -23,7 +23,7 @@ AS ( SELECT *,
 */
 
 DECLARE replace_day DATE;
-DECLARE stop_date DATE DEFAULT '2020-01-01';  -- ADJUST: backfill will not go earlier than this date
+DECLARE stop_date DATE DEFAULT '2024-01-01';  -- ADJUST: backfill will not go earlier than this date
 
 -- start from the oldest existing partition and work backwards
 SET replace_day = (SELECT MIN(date) FROM `mlab-collaboration.mm_preproduction.autoload_DS16`);
