@@ -13,7 +13,7 @@ DECLARE replace_day DATE;
 DECLARE stop_date DATE DEFAULT '2024-01-01';  -- ADJUST: backfill will not go earlier than this date
 
 -- start from the oldest existing partition and work backwards
-SET replace_day = (SELECT MIN(date) FROM `mlab-collaboration.mm_preproduction.extended_intermediate_downloads_DS16`);
+SET replace_day = (SELECT MIN(date) FROM `mlab-collaboration.mm_preproduction.extended_intermediate_downloads_DS16` WHERE date >= stop_date);
 
 WHILE replace_day > stop_date DO
 

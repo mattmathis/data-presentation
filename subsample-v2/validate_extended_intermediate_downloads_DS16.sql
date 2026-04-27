@@ -47,7 +47,7 @@ sanatizedUnified AS (  -- Only adds isValidBest
 ),
 
 # Remove know to be problematic fields, most are expected
-# metadata is due to a schema BUG
+# metadata is due to a schema BUG20251122PUD
 # _fleet is a workaround for problems with the metadata
 sanitizeTestFcn AS (
   SELECT * EXCEPT ( _internal202511, _fleet)
