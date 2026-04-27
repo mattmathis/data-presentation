@@ -26,7 +26,7 @@ CREATE OR REPLACE TABLE `mlab-collaboration.mm_preproduction.extended_intermedia
 AS ( SELECT *,
       server.Geo.ContinentCode AS ServerContinent,
       server.Site AS ServerSite,
-    FROM `mm_preproduction.extended_intermediate_downloads_DS16`(replace_day) # Caution function
+    FROM `mlab-collaboration.mm_preproduction.extended_intermediate_downloads_DS16`(replace_day) # Caution function
 );
 
 BEGIN TRANSACTION;
