@@ -40,7 +40,7 @@ ndt7uploads AS (
   FROM src
   WHERE -- Limit to rows with valid C2S
     raw.Upload IS NOT NULL
-    AND raw.Upload.UUID IS NOT NULLStart
+    AND raw.Upload.UUID IS NOT NULL
     AND raw.Upload.UUID NOT IN ( '', 'ERROR_DISCOVERING_UUID' )
 ),
 
