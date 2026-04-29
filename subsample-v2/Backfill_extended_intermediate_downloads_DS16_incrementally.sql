@@ -3,6 +3,9 @@
 # DML script — works BACKWARDS from the oldest existing partition to stop_date.
 # Adjust stop_date before running.
 
+# Monitor progress
+# SELECT MIN(date) FROM `mlab-collaboration.mm_preproduction.extended_intermediate_downloads_DS16` WHERE date >= "2024-01-01"
+
 # Reset the entire table EXPENSIVE to RECREATE
 # DROP TABLE  `mlab-collaboration.mm_preproduction.extended_intermediate_downloads_DS16`;
 
