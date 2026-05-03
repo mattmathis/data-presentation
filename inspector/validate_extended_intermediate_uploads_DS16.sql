@@ -72,7 +72,7 @@ SampledTestData AS (
     FROM `mlab-collaboration.mm_preproduction.extended_intermediate_uploads_DS16`
     WHERE
       date = '2025-11-01'  -- One test Day
-      AND _fleet = 'legacy' -- Autojoin data can't be testsd because is not in the production tables
+      AND _fleet = 'legacy' -- Autojoin data can't be tested because is not in the production tables
 ),
 
 ############ Comparison Sub Querys

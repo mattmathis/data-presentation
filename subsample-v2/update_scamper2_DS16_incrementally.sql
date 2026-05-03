@@ -2,6 +2,9 @@
 #
 # DML script
 
+# Observe the progress:
+# SELECT MAX(date) FROM `mlab-collaboration.mm_preproduction.scamper2_DS16` WHERE date >= '2026-01-01'
+
 # Reset the entire table EXPENSIVE to RECREATE
 # DROP TABLE  `mlab-collaboration.mm_preproduction.scamper2_DS16`;
 
@@ -10,8 +13,8 @@
 
 /* FIRST TIME ONLY
 CREATE OR REPLACE TABLE `mlab-collaboration.mm_preproduction.scamper2_DS16`
-  PARTITION BY dateAS ( SELECT *,
-
+  PARTITION BY date AS (
+    SELECT *
     FROM `measurement-lab.ndt.scamper2`
     WHERE date = '2026-01-01'
       AND FARM_FINGERPRINT(raw.Metadata.UUID) & 0xF = 0
@@ -30,7 +33,7 @@ SET replace_day = (replace_day + 1);
 SELECT replace_day;
 
 CREATE OR REPLACE TABLE `mlab-collaboration.mm_preproduction.scamper2_tmp`
-  PARTITION BY dateAS ( SELECT *,
+  PARTITION BY date AS ( SELECT *,
 
     FROM `measurement-lab.ndt.scamper2`
     WHERE date = replace_day

@@ -13,7 +13,7 @@
 # DROP TABLE  `mlab-collaboration.mm_preproduction.scamper1_tmp`;
 
 DECLARE replace_day DATE;
-DECLARE stop_date DATE DEFAULT '2026-01-01';  -- ADJUST: backfill will not go earlier than this date
+DECLARE stop_date DATE DEFAULT '2024-01-01';  -- ADJUST: backfill will not go earlier than this date
 
 -- start from the oldest existing partition and work backwards
 SET replace_day = (SELECT MIN(date) FROM `mlab-collaboration.mm_preproduction.scamper1_DS16` WHERE date >= stop_date);
@@ -23,8 +23,8 @@ WHILE replace_day > stop_date DO
 SET replace_day = (replace_day - 1);
 
 CREATE OR REPLACE TABLE `mlab-collaboration.mm_preproduction.scamper1_tmp`
-  PARTITION BY dateAS ( SELECT *,
-
+  PARTITION BY date AS (
+    SELECT *,
     FROM `measurement-lab.ndt.scamper1`
     WHERE date = replace_day
       AND FARM_FINGERPRINT(raw.Metadata.UUID) & 0xF = 0

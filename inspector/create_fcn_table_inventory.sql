@@ -1,4 +1,5 @@
 # create_fcn_table_inventory(project_dataset, tbl, start_date, end_date)
+# This is not useable, because it requires to many permissions
 #
 # Returns per-partition row counts and sizes for any date-partitioned table
 # in any dataset within the US region, between start_date and end_date inclusive.
