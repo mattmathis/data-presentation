@@ -1,3 +1,57 @@
+# subsample-v2
+
+## Dataform project (current)
+
+Dataform definitions in `definitions/` replace the stored-procedure scripts below.
+All tables live in `mlab-collaboration.mm_preproduction` and are partitioned by `date`.
+Each run appends only partitions that are missing from the target table.
+
+### Dependency graph
+
+```
+measurement-lab.ndt.ndt7          measurement-lab.ndt.ndt7_dynamic
+         │                                        │
+         ▼                                        ▼
+    ndt7_DS16  ─────────────────────────  autoload_DS16
+         │                │                       │
+         │                └──────────┬────────────┘
+         │                           │
+         ▼                           ▼
+extended_intermediate_        extended_intermediate_
+  downloads_DS16                uploads_DS16
+
+measurement-lab.ndt.scamper1       measurement-lab.ndt.scamper2
+         │                                        │
+         ▼                                        ▼
+   scamper1_DS16                           scamper2_DS16
+```
+
+### Tables
+
+| Table | Source | Cluster | Notes |
+|-------|--------|---------|-------|
+| `ndt7_DS16` | `measurement-lab.ndt.ndt7` | `Continent, ServerSite` | Adds `Continent`, `ServerSite` top-level |
+| `autoload_DS16` | `measurement-lab.ndt.ndt7_dynamic` | `Continent, ServerSite` | Adds `Continent`, `ServerSite` top-level |
+| `scamper1_DS16` | `measurement-lab.ndt.scamper1` | — | |
+| `scamper2_DS16` | `measurement-lab.ndt.scamper2` | — | |
+| `extended_intermediate_downloads_DS16` | `ndt7_DS16` + `autoload_DS16` | `isValidBest, ServerContinent, ServerSite` | `require_partition_filter` |
+| `extended_intermediate_uploads_DS16` | `ndt7_DS16` + `autoload_DS16` | `isValidBest, ServerContinent, ServerSite` | `require_partition_filter` |
+
+Subsampling: `FARM_FINGERPRINT(uuid) & 0xF = 0` — retains 1/16 of rows.
+
+### Running
+
+```bash
+cd subsample-v2
+dataform run                  # incremental: appends missing partitions
+dataform run --full-refresh   # rebuild all tables from scratch (expensive)
+```
+
+Dataform enforces dependency order automatically: Layer 1 (`ndt7_DS16`, `autoload_DS16`)
+always completes before Layer 2 (`extended_intermediate_*`) begins.
+
+---
+
 # First generation subsample tools
 
 As these scripts are migrated or discarded, mark the entries here and move them to the bottom of the file
