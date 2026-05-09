@@ -8,5 +8,6 @@ config {
 
 SELECT *
 FROM `measurement-lab.ndt.scamper1`
-WHERE FARM_FINGERPRINT(raw.Metadata.UUID) & 0xF = 0
+WHERE date >= CURRENT_DATE() - 30
+  AND FARM_FINGERPRINT(raw.Metadata.UUID) & 0xF = 0
 ${ when(incremental(), `AND date > (SELECT MAX(date) FROM ${self()})`) }

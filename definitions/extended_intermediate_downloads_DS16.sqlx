@@ -16,7 +16,7 @@ src AS (
     [parser.ArchiveURL] AS ArchiveURL,
     'legacy' AS _fleet
   FROM ${ref("ndt7_DS16")}
-  WHERE TRUE
+  WHERE date >= CURRENT_DATE() - 30
   ${ when(incremental(), `AND date > (SELECT MAX(date) FROM ${self()})`) }
 
   UNION ALL
@@ -26,7 +26,7 @@ src AS (
     [Archiver.ArchiveURL] AS ArchiveURL,
     'autojoin' AS _fleet
   FROM ${ref("autoload_DS16")}
-  WHERE TRUE
+  WHERE date >= CURRENT_DATE() - 30
   ${ when(incremental(), `AND date > (SELECT MAX(date) FROM ${self()})`) }
 ),
 
