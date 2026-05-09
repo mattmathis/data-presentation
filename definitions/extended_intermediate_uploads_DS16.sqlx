@@ -4,7 +4,8 @@ config {
   bigquery: {
     partitionBy: "date",
     clusterBy: ["isValidBest", "ServerContinent", "ServerSite"],
-    requirePartitionFilter: true
+    requirePartitionFilter: true,
+    updatePartitionFilter: "date >= CURRENT_DATE() - 30"
   }
 }
 

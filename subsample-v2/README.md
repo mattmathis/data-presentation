@@ -2,7 +2,8 @@
 
 ## Dataform project (current)
 
-Dataform definitions in `definitions/` replace the stored-procedure scripts below.
+Dataform definitions in `../definitions/` (repo root) replace the stored-procedure scripts below.
+`workflow_settings.yaml` is also at the repo root.
 All tables live in `mlab-collaboration.mm_preproduction` and are partitioned by `date`.
 Each run appends only partitions that are missing from the target table.
 
@@ -42,7 +43,7 @@ Subsampling: `FARM_FINGERPRINT(uuid) & 0xF = 0` — retains 1/16 of rows.
 ### Running
 
 ```bash
-cd subsample-v2
+cd <repo-root>
 dataform run                  # incremental: appends missing partitions
 dataform run --full-refresh   # rebuild all tables from scratch (expensive)
 ```
