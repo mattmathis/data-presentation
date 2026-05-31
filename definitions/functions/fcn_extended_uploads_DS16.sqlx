@@ -1,0 +1,60 @@
+config { 
+  type: "operations",
+  tags: ["functions"]
+}
+
+CREATE OR REPLACE TABLE FUNCTION `mlab-collaboration.mm_preproduction.fcn_extended_uploads_DS16` (
+  partition_date DATE
+) AS (
+  WITH src AS (
+    SELECT
+      * EXCEPT (Parser),
+      [parser.ArchiveURL] AS ArchiveURL,
+      'legacy' AS _fleet,
+    FROM ${ref("ndt7_DS16")}
+    WHERE date = partition_date
+
+    UNION ALL
+
+    SELECT
+      * EXCEPT (Archiver),
+      [Archiver.ArchiveURL] AS ArchiveURL,
+      'autojoin' AS _fleet,
+    FROM ${ref("autoload_DS16")}
+    WHERE date = partition_date
+  ),
+
+  ndt7uploads AS (
+    SELECT 
+      *,
+      raw.Upload.ServerMeasurements[SAFE_ORDINAL(ARRAY_LENGTH(raw.Upload.ServerMeasurements))] AS FinalSnapshot,
+      FALSE AS IsError, 
+      TIMESTAMP_DIFF(raw.Upload.EndTime, raw.Upload.StartTime, MILLISECOND) * 1.0 AS test_duration
+    FROM src
+    WHERE 
+      raw.Upload IS NOT NULL 
+      AND raw.Upload.UUID IS NOT NULL
+  )
+
+  SELECT
+    * EXCEPT (FinalSnapshot, test_duration, IsError),
+    -- Create the 'filter' STRUCT specifically for Uploads (using BytesReceived)
+    STRUCT(
+      (FinalSnapshot.TCPInfo.BytesReceived / (test_duration * 1000.0)) * 8.0 AS MeanThroughputMbps,
+      FinalSnapshot.TCPInfo.MinRTT / 1000.0 AS MinRTT,
+      FinalSnapshot.TCPInfo.Lost / FinalSnapshot.TCPInfo.BytesSent AS LossRate
+    ) AS filter,
+    -- Logic for isValidBest
+    (FinalSnapshot.TCPInfo.BytesReceived IS NOT NULL
+      AND FinalSnapshot.TCPInfo.BytesReceived >= 8192
+      AND FinalSnapshot.TCPInfo.MinRTT IS NOT NULL
+      AND FinalSnapshot.TCPInfo.MinRTT > 0
+      AND test_duration >= 9000
+      AND test_duration <= 60000
+      AND NOT IsError
+    ) AS isValidBest,
+    -- Standard enrichment
+    server.Geo.ContinentCode AS ServerContinent,
+    server.Site AS ServerSite
+  FROM ndt7uploads
+);
