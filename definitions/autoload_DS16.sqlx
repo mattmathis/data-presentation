@@ -1,16 +1,23 @@
 config {
   type: "incremental",
   schema: "mm_preproduction",
+  name: "autoload_DS16",
+  description: "Subsampled autoload data (16:1) with added Continent and ServerSite columns.",
   bigquery: {
     partitionBy: "date",
     clusterBy: ["Continent", "ServerSite"]
   }
 }
 
-SELECT *,
+SELECT
+  *,
+  -- Add the partitioning/clustering columns
   server.Geo.ContinentCode AS Continent,
   server.Site AS ServerSite
-FROM `measurement-lab.ndt.ndt7_dynamic`
-WHERE date >= CURRENT_DATE() - 30
-  AND FARM_FINGERPRINT(a.UUID) & 0xF = 0
-${ when(incremental(), `AND date > (SELECT MAX(date) FROM ${self()})`) }
+FROM
+  `measurement-lab.ndt.autoload`
+WHERE
+  -- Subsampling 16:1
+  FARM_FINGERPRINT(a.UUID) & 0xF = 0
+  -- Incremental logic: only fetch data newer than the existing table
+  AND date > (SELECT MAX(date) FROM ${self()})
